@@ -13,20 +13,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SubHeading } from './SubHeading';
 
 
-
 export const Appbar = () => {
 
     const navigate = useNavigate();
     let user = true;
 
-    return <div className="py-4 flex justify-between items-center">
+    return <div className="flex justify-between items-center">
         <Link to="/">
-            <div className='flex flex-col items-center'>
-                <Atom />
-                <SubHeading lable='easyware' />
+            <div className='flex items-center gap-1'>
+                <Atom/>
+                <div className='font-bold'>easyware</div>
             </div>
         </Link>
-
+        <div className='flex space-x-10'>
+            <Link to="/home">Home</Link>
+            <Link to="/products">Products</Link>
+            <Link to="contact-us">Contact Us</Link>
+        </div>
         <div>
             {!user ? <Button onClick={() => navigate("/signup")}>Login</Button>
                 : (
@@ -51,5 +54,6 @@ export const Appbar = () => {
                 )
             }
         </div>
+
     </div>
 }
