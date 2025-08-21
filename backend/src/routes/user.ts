@@ -3,9 +3,13 @@ import express, { Router } from "express"
 import { z } from "zod"
 import { UserModel } from "../db/user.js";
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
+import dotenv from "dotenv"
+dotenv.config();
 
 export const userRouter: Router = Router();
 const SALT_ROUNDS = 10;
+const JWT_SECRET = process.env.JWT_SECRET as string
 
 const signupBody = z.object({
     username: z.email().min(3).max(30),
@@ -46,14 +50,68 @@ userRouter.post("/signup", async (req, res) => {
             lastName: parsed.data.lastName
         })
 
+        const token = jwt.sign({
+            userId: user._id
+        }, JWT_SECRET)
+
         res.status(201).json({
             message: "user created successfully",
-            userId: user._id
+            token
+            // userId: user._id
         })
 
-    } catch(e) {
+    } catch (e) {
         res.status(500).json({
             error: "something went wrong"
+        })
+    }
+})
+
+const loginBody = z.object({
+    username: z.email().min(3).max(30),
+    password: z.string().min(3).max(10),
+})
+
+userRouter.post("/signin", async (req, res) => {
+
+    const parsed = loginBody.safeParse(req.body)
+    if (!parsed.success) {
+        res.status(411).json({
+            error: "Incorrect credentials!!!"
+        })
+    }
+
+    try {
+        const { password } = req.body;
+        const user = await UserModel.findOne({
+            username: parsed.data?.username,
+            password: parsed.data?.password
+        })
+
+        //@ts-ignore
+        const isValidPass = await bcrypt.compare(password, user.password)
+        if (!isValidPass) {
+            res.status(401).json({
+                error: "Incorrect password!"
+            })
+        }
+        if (!user) {
+            res.status(404).json({
+                error: "User not found!"
+            })
+        }
+
+        const token = jwt.sign({
+            userId: user?._id
+        }, JWT_SECRET)
+
+        res.status(201).json({
+            message: "Login succesfully!",
+            token: token
+        })
+    } catch (e) {
+        res.status(500).json({
+            error: "Incorect email or server error!"
         })
     }
 })

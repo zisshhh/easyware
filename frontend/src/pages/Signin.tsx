@@ -20,58 +20,45 @@ const signupSchema = z.object({
     lastName: z.string()
 })
 
-export const Signup = () => {
+export const Signin = () => {
 
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
     const navigate = useNavigate();
 
     return <div className="w-screen h-screen bg-slate-300 flex justify-center items-center">
         <div className="bg-white min-w-48 rounded-md border ">
-            <Heading lable="Sign-up" />
+            <Heading lable="Sign-in" />
             <SubHeading lable="Enter your information to create an accont" />
             <div className="p-4">
                 <Label className="py-3" htmlFor="email" >Email</Label>
-                <Input 
-                type="email" 
-                placeholder="zisshh@gmail.com" 
-                onChange={(e) => {
-                    setUsername(e.target.value)
-                }}
+                <Input
+                    type="email"
+                    placeholder="zisshh@gmail.com"
+                    onChange={(e) => {
+                        setUsername(e.target.value)
+                    }}
                 />
 
                 <Label className="py-3" htmlFor="email" >Passoword</Label>
-                <Input type="email" placeholder="123random" 
-                onChange={(e) => setPassword(e.target.value)}
-                />
-
-                <Label className="py-3" htmlFor="email" >FirstName</Label>
-                <Input type="email" placeholder="zishan"
-                onChange={(e) => setFirstName(e.target.value)}
-                 />
-
-                <Label className="py-3" htmlFor="email" >LastName</Label>
-                <Input type="email" placeholder="mira" 
-                onChange={(e) => setLastName(e.target.value)}
+                <Input type="email" placeholder="123random"
+                    onChange={(e) => setPassword(e.target.value)}
                 />
 
             </div>
             <div className="pb-4">
                 <Button className="cursor-pointer"
-                onClick={async () => {
-                    const res = await axios.post("http://localhost:3000/api/v1/user/signup",{
-                        username,
-                        password,
-                        firstName,
-                        lastName
-                    })
-                    console.log(res.data);
-                    navigate("/")
-                }}
+                    onClick={async () => {
+                        const res = await axios.post("http://localhost:3000/api/v1/user/signin", {
+                            username,
+                            password
+                        })
+                        console.log(res.data)
+                        navigate("/")
+
+                    }}
                 >
-                    Sign up
+                    Sign in
                 </Button>
             </div>
         </div>

@@ -10,18 +10,16 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { SubHeading } from './SubHeading';
-
 
 export const Appbar = () => {
 
     const navigate = useNavigate();
     let user = true;
 
-    return <div className="flex justify-between items-center">
+    return <div className="flex border-b justify-between items-center">
         <Link to="/">
             <div className='flex items-center gap-1'>
-                <Atom/>
+                <Atom />
                 <div className='font-bold'>easyware</div>
             </div>
         </Link>
