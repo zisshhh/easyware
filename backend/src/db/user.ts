@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import dotenv from "dotenv"
+import { strictObject, string } from "zod";
 
 dotenv.config();
 const MONGO_URL = process.env.MONGO_URL as string;
@@ -21,6 +22,11 @@ const userSchema = new Schema({
         required: true,
         minLength: 6
     },
+    role: {
+        type: String,
+        enum: ["user", "admin"],
+        default: "user"
+    },
     firstName: {
         type: String,
         required: true,
@@ -33,4 +39,4 @@ const userSchema = new Schema({
     }
 })
 
-export const UserModel = mongoose.model("User", userSchema)
+export const UserModel = mongoose.model("User", userSchema);
