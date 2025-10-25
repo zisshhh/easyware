@@ -1,17 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import dotenv from "dotenv"
-import { strictObject, string } from "zod";
-
-dotenv.config();
-const MONGO_URL = process.env.MONGO_URL as string;
-mongoose.connect(MONGO_URL)
-    .then(() => console.log("Mongoo conected"))
-    .catch((error) => console.error("Mongo connection error", error))
 
 const userSchema = new Schema({
-    username: {
+    email: {
         type: String,
-        required: true,
+        required: [true, "Provide email"],
         trim: true,
         lowercase: true,
         minLength: 3,
@@ -19,7 +11,7 @@ const userSchema = new Schema({
     },
     password: {
         type: String,
-        required: true,
+        required: [true, "Provide password"],
         minLength: 6
     },
     role: {
@@ -30,13 +22,34 @@ const userSchema = new Schema({
     firstName: {
         type: String,
         required: true,
-        maxLenth: 30
+        maxLength: 30
     },
     lastName: {
         type: String,
         required: true,
-        maxLenth: 30
-    }
+        maxLength: 30
+    },
+    addresDetail: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: 'adress'
+        }
+    ],
+    shopingCart: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: 'cartProduct'
+        }
+    ],
+    orderHistory: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: 'order'
+        }
+    ],
+
+}, {
+    timestamps: true,
 })
 
-export const UserModel = mongoose.model("User", userSchema);
+export const UserModel = mongoose.model("user", userSchema);

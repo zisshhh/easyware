@@ -1,79 +1,184 @@
-import { Heading } from "@/components/Heading"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { z } from 'zod'
-import { SubHeading } from "@/components/SubHeading"
-import { Button } from "@/components/ui/button"
-import { useState } from "react"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
-const signupSchema = z.object({
-    username: z.string().email("Invalid email"),
-    password: z
-        .string()
-        .min(5, {
-            message: "It must be at least 5 characters."
-        })
-        .max(10),
-    firstName: z.string(),
-    lastName: z.string()
-})
+const SignUp = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
-export const Signup = () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const navigate = useNavigate();
+    if (password !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    return <div className="w-screen h-screen bg-slate-300 flex justify-center items-center">
-        <div className="bg-white min-w-48 rounded-md border ">
-            <Heading lable="Sign-up" />
-            <SubHeading lable="Enter your information to create an accont" />
-            <div className="p-4">
-                <Label className="py-3" htmlFor="email" >Email</Label>
-                <Input 
-                type="email" 
-                placeholder="zisshh@gmail.com" 
-                onChange={(e) => {
-                    setUsername(e.target.value)
-                }}
+    if (password.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    
+    try {
+      const success = await register({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
+      
+      if (success) {
+        toast({
+          title: "Success",
+          description: "Account created successfully!",
+        });
+        navigate("/");
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create account. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "An error occurred during registration",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/5 via-accent/5 to-background">
+      <div className="w-full max-w-md">
+        <Card className="border-border/50 shadow-xl backdrop-blur-sm bg-card/95">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Create Account
+            </CardTitle>
+            <CardDescription className="text-center text-muted-foreground">
+              Enter your information to get started
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="John"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="transition-all duration-300 focus:scale-[1.02]"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Doe"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="transition-all duration-300 focus:scale-[1.02]"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="transition-all duration-300 focus:scale-[1.02]"
+                  required
                 />
-
-                <Label className="py-3" htmlFor="email" >Passoword</Label>
-                <Input type="email" placeholder="123random" 
-                onChange={(e) => setPassword(e.target.value)}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Create a password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="transition-all duration-300 focus:scale-[1.02]"
+                  required
                 />
-
-                <Label className="py-3" htmlFor="email" >FirstName</Label>
-                <Input type="email" placeholder="zishan"
-                onChange={(e) => setFirstName(e.target.value)}
-                 />
-
-                <Label className="py-3" htmlFor="email" >LastName</Label>
-                <Input type="email" placeholder="mira" 
-                onChange={(e) => setLastName(e.target.value)}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  placeholder="Confirm your password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="transition-all duration-300 focus:scale-[1.02]"
+                  required
                 />
-
+              </div>
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-all duration-300 hover:scale-[1.02]"
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating Account..." : "Sign Up"}
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <div className="text-sm text-center text-muted-foreground">
+              Already have an account?{" "}
+              <Link to="/signin" className="text-primary hover:text-accent transition-colors font-medium">
+                Sign In
+              </Link>
             </div>
-            <div className="pb-4">
-                <Button className="cursor-pointer"
-                onClick={async () => {
-                    const res = await axios.post("http://localhost:3000/api/v1/user/signup",{
-                        username,
-                        password,
-                        firstName,
-                        lastName
-                    })
-                    console.log(res.data);
-                    navigate("/")
-                }}
-                >
-                    Sign up
-                </Button>
-            </div>
-        </div>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
-}
+  );
+};
+
+export default SignUp;

@@ -1,7 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
 export const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    //@ts-ignore
     if(req.user && req.user.role ==="admin"){
         next();
     } else {
