@@ -1,31 +1,19 @@
-import { parse } from "dotenv";
-import express, { Router } from "express"
-import { email, z } from "zod"
+import { Router } from "express"
 import { UserModel } from "../db/user.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 import { userMiddleware } from "../middleware/userMiddleware.js";
-import { adminMiddleware } from "../middleware/adminMiddleware.js";
-import { isValid } from "zod/v3";
+import { loginBody, signupBody, updateBody } from "../schema/auth.js";
 dotenv.config();
 
 export const userRouter: Router = Router();
 const SALT_ROUNDS = 10;
 const JWT_SECRET = process.env.JWT_SECRET as string
 
-const signupBody = z.object({
-    email: z.email().min(6).max(50),
-    password: z.string().min(6).max(50),
-    firstName: z.string().max(30),
-    lastName: z.string().max(30),
-    adminKey: z.string().optional()
-})
-
 //signup
 userRouter.post("/signup", async (req, res) => {
     const parsed = signupBody.safeParse(req.body);
-
     if (!parsed.success) {
         console.log(parsed.error);
 
@@ -35,11 +23,11 @@ userRouter.post("/signup", async (req, res) => {
         })
         return;
     }
+
     try {
         const existingUser = await UserModel.findOne({
             email: parsed.data.email
         })
-
         if (existingUser) {
             return res.json({
                 message: "User already exist with this email!"
@@ -49,7 +37,6 @@ userRouter.post("/signup", async (req, res) => {
         const hashedPassword = await bcrypt.hash(parsed.data.password, SALT_ROUNDS);
 
         let role: "user" | "admin" = "user";
-
         if (parsed.data.adminKey && parsed.data.adminKey === process.env.ADMIN_KEY) {
             role = "admin"
         }
@@ -79,11 +66,6 @@ userRouter.post("/signup", async (req, res) => {
             error: "something went wrong",
         })
     }
-})
-
-const loginBody = z.object({
-    email: z.email().min(3).max(30),
-    password: z.string().min(3).max(10),
 })
 
 //login
@@ -136,14 +118,6 @@ userRouter.post("/signin", async (req, res) => {
     }
 })
 
-const updateBody = z.object({
-    email: z.email().optional(),
-    currentPassword: z.string().min(6).optional(),
-    newPassword: z.string().optional(),
-    firstName: z.string().optional(),
-    lastName: z.string().optional()
-})
-
 //update
 userRouter.put("/", userMiddleware, async (req, res) => {
     const parsed = updateBody.safeParse(req.body);
@@ -166,24 +140,24 @@ userRouter.put("/", userMiddleware, async (req, res) => {
                 message: "Current password is required!"
             })
         }
-        
+
         const isValidPass = await bcrypt.compare(currentPassword, user.password);
-        if(!isValidPass){
+        if (!isValidPass) {
             return res.status(411).json({
                 message: "Incorrect Passoword!"
             })
         }
 
-        if(email) user.email = email
-        if(firstName) user.firstName = firstName
-        if(lastName) user.lastName = lastName
+        if (email) user.email = email
+        if (firstName) user.firstName = firstName
+        if (lastName) user.lastName = lastName
 
-        if(newPassword){
+        if (newPassword) {
             const hashPassword = await bcrypt.hash(newPassword, SALT_ROUNDS);
             user.password = hashPassword
         }
         await user.save();
-        
+
         return res.status(200).json({
             message: "User updated succesfully!",
             user

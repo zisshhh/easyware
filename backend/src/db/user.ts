@@ -29,24 +29,6 @@ const userSchema = new Schema({
         required: true,
         maxLength: 30
     },
-    addresDetail: [
-        {
-            type: mongoose.Schema.ObjectId,
-            ref: 'adress'
-        }
-    ],
-    shopingCart: [
-        {
-            type: mongoose.Schema.ObjectId,
-            ref: 'cartProduct'
-        }
-    ],
-    orderHistory: [
-        {
-            type: mongoose.Schema.ObjectId,
-            ref: 'order'
-        }
-    ],
 
 }, {
     timestamps: true,
