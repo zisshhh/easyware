@@ -6,5 +6,7 @@ export const productBody = z.object({
     brand: z.string(),
     description: z.string(),
     category: z.string(),
-    imageURL: z.string()
+    imageURL: z.array(z.string())
 })
+
+export const updateProductBody = productBody.partial();
