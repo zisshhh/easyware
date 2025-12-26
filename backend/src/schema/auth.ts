@@ -1,6 +1,5 @@
 import { z } from "zod"
 
-
 export const signupBody = z.object({
     email: z.email().min(6).max(50),
     password: z.string().min(6).max(50),

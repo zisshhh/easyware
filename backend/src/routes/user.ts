@@ -69,7 +69,7 @@ userRouter.post("/signup", async (req, res) => {
 })
 
 //login
-userRouter.post("/signin", async (req, res) => {
+userRouter.post("/login", async (req, res) => {
     const parsed = loginBody.safeParse(req.body)
     if (!parsed.success) {
         res.status(411).json({

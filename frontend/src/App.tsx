@@ -3,6 +3,10 @@ import Login from './pages/Login'
 import SignUp from './pages/Signup'
 import NotFound from './pages/NotFound'
 import { Home } from './pages/Home'
+import Products from './pages/Products'
+import Cart from './pages/Cart'
+import { AuthRoute } from './routes/AuthRoute'
+import { ProtectedRoute } from './routes/ProtectedRoute'
 
 function App() {
   const router = createBrowserRouter([
@@ -13,15 +17,33 @@ function App() {
       </div>
     },
     {
+      path: "/products",
+      element: <div>
+        <Products />
+      </div>
+    },
+    {
+      path: "/cart",
+      element: <div>
+        <ProtectedRoute>
+          <Cart />
+        </ProtectedRoute>
+      </div>
+    },
+    {
       path: "/signup",
       element: <div>
-        <SignUp />
+        <AuthRoute>
+          <SignUp />
+        </AuthRoute>
       </div>
     },
     {
       path: "/login",
       element: <div>
-        <Login />
+        <AuthRoute>
+          <Login />
+        </AuthRoute>
       </div>
     },
     {

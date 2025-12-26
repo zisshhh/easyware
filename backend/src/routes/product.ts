@@ -32,9 +32,9 @@ productRouter.post("/", userMiddleware, adminMiddleware, async (req, res) => {
             message: "product created succesfully!",
             product
         })
-    } catch (error) {
-        console.log("server error: ", error)
-        res.status(500).json({ error: 'Server error occurred please try again later' });
+    } catch (e) {
+        console.log("server error: ", e)
+        res.status(500).json({ error: 'Server error occurred please try again later', e });
     }
 
 })
